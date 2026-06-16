@@ -1,0 +1,132 @@
+# ======================
+# Compilados Java
+# ======================
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# ======================
+# Build outputs
+# ======================
+target/
+build/
+out/
+bin/
+
+# ======================
+# Maven
+# ======================
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ======================
+# Gradle
+# ======================
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ======================
+# IntelliJ IDEA
+# ======================
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# IntelliJ — manter apenas workspace compartilhável (opcional)
+# !.idea/codeStyles/
+# !.idea/inspectionProfiles/
+# !.idea/runConfigurations/
+
+# ======================
+# Eclipse / STS
+# ======================
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+# ======================
+# VS Code
+# ======================
+.vscode/
+
+# ======================
+# NetBeans
+# ======================
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# ======================
+# Logs
+# ======================
+*.log
+logs/
+log/
+
+# ======================
+# Arquivos temporários
+# ======================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ======================
+# Sistema operacional
+# ======================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ======================
+# Variáveis de ambiente
+# ======================
+.env
+.env.*
+!.env.example
+
+# ======================
+# Docker
+# ======================
+.dockerignore
+
+# ======================
+# Quarkus (dev services / gerado)
+# ======================
+.quarkus/
+src/main/resources/application-dev.properties
+
+# ======================
+# Spring Boot
+# ======================
+HELP.md
+spring-shell.log
+
+# ======================
+# Cobertura de testes
+# ======================
+.jacoco/
+jacoco.exec
+coverage/
