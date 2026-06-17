@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +24,14 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import com.portfolio.dto.ProjectFilterRequest;
 import com.portfolio.dto.ProjectRequest;
+import com.portfolio.dto.ProjectResponse;
 import com.portfolio.enums.ProjectStatus;
 import com.portfolio.exception.BusinessException;
 import com.portfolio.exception.ResourceNotFoundException;
@@ -311,5 +318,109 @@ class ProjectServiceTest {
 
         assertDoesNotThrow(() -> projectService.create(request));
         verify(projectRepository).save(any(Project.class));
+    }
+
+    @Test
+    @DisplayName("create() deve lançar BusinessException quando actualEndDate < startDate")
+    void create_shouldThrow_whenActualEndDateIsBeforeStartDate() {
+        ProjectRequest request = new ProjectRequest(
+                "Projeto",
+                LocalDate.of(2024, 6, 1),
+                LocalDate.of(2024, 12, 1),
+                LocalDate.of(2024, 1, 1),
+                new BigDecimal("50000"),
+                "Desc",
+                1L
+        );
+        when(memberService.findEntityById(1L)).thenReturn(manager);
+
+        assertThrows(BusinessException.class, () -> projectService.create(request));
+    }
+
+    // =========================================================
+    // findAll()
+    // =========================================================
+
+    @Test
+    @DisplayName("findAll() deve retornar página de ProjectResponse")
+    void findAll_shouldReturnPageOfResponses() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Project project = buildProject(1L, ProjectStatus.EM_ANALISE);
+        Page<Project> page = new PageImpl<>(List.of(project), pageable, 1);
+
+        when(projectRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), eq(pageable))).thenReturn(page);
+
+        Page<ProjectResponse> result = projectService.findAll(
+                new ProjectFilterRequest(null, null, null, null, null), pageable);
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    // =========================================================
+    // findById()
+    // =========================================================
+
+    @Test
+    @DisplayName("findById() deve retornar ProjectResponse quando encontrado")
+    void findById_shouldReturnResponse_whenFound() {
+        Project project = buildProject(1L, ProjectStatus.EM_ANALISE);
+        when(projectRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(project));
+
+        ProjectResponse response = projectService.findById(1L);
+
+        assertEquals(1L, response.id());
+    }
+
+    @Test
+    @DisplayName("findById() deve lançar ResourceNotFoundException quando não encontrado")
+    void findById_shouldThrow_whenNotFound() {
+        when(projectRepository.findByIdWithDetails(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> projectService.findById(99L));
+    }
+
+    // =========================================================
+    // update()
+    // =========================================================
+
+    @Test
+    @DisplayName("update() deve lançar BusinessException quando actualEndDate < startDate")
+    void update_shouldThrow_whenActualEndDateIsBeforeStartDate() {
+        Project project = buildProject(1L, ProjectStatus.EM_ANALISE);
+        ProjectRequest request = new ProjectRequest(
+                "Projeto",
+                LocalDate.of(2024, 6, 1),
+                LocalDate.of(2024, 12, 1),
+                LocalDate.of(2024, 1, 1),
+                new BigDecimal("50000"),
+                "Desc",
+                1L
+        );
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(memberService.findEntityById(1L)).thenReturn(manager);
+
+        assertThrows(BusinessException.class, () -> projectService.update(1L, request));
+    }
+
+    @Test
+    @DisplayName("update() deve ter sucesso com datas válidas")
+    void update_shouldSucceed_whenDatesAreValid() {
+        Project project = buildProject(1L, ProjectStatus.EM_ANALISE);
+        ProjectRequest request = new ProjectRequest(
+                "Atualizado",
+                LocalDate.of(2024, 1, 1),
+                LocalDate.of(2024, 6, 1),
+                null,
+                new BigDecimal("60000"),
+                "Nova Desc",
+                1L
+        );
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(memberService.findEntityById(1L)).thenReturn(manager);
+        when(projectRepository.save(any())).thenReturn(project);
+
+        ProjectResponse response = projectService.update(1L, request);
+
+        assertEquals("Atualizado", response.name());
     }
 }
